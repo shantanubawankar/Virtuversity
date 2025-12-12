@@ -6,7 +6,7 @@ services:
     autoDeploy: true
     branch: main
     rootDir: server
-    buildCommand: ""
+    buildCommand: "npm install"
     startCommand: "node src/index.js"
     healthCheckPath: /health
     envVars:
