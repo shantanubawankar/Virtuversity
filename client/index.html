@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Virtuversity</title>
+    <meta name="description" content="Micro‑learning platform: pay per video, subscribe per course, or follow a teacher." />
+    <meta name="theme-color" content="#111827" />
+    <meta property="og:title" content="Virtuversity" />
+    <meta property="og:description" content="Micro‑learning for modern students." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://virtuversity.vercel.app/" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%237c3aed'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3C/svg%3E" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -24,30 +31,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       html, body { height: 100%; }
+      :root { color-scheme: dark; }
+      html { scroll-behavior: smooth; }
       body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
       .glass { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 8px 32px rgba(31,38,135,0.15); backdrop-filter: blur(10px); }
     </style>
   </head>
   <body class="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1f2937] text-white">
     <div id="root"></div>
+    <div id="toast" class="fixed bottom-4 right-4 z-50 hidden"></div>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module">
       const { useState, useEffect } = React
-      function Button({ children, onClick, variant = 'primary' }) {
-        const base = 'px-4 py-2 rounded-lg font-medium transition'
+      function showToast(message, variant = 'info') {
+        const el = document.getElementById('toast')
+        el.className = 'fixed bottom-4 right-4 z-50'
+        const bg = variant === 'error' ? 'bg-red-500/90' : variant === 'success' ? 'bg-emerald-500/90' : 'bg-white/10'
+        el.innerHTML = `<div class="glass ${bg} text-white px-4 py-3 rounded-xl shadow-lg">${message}</div>`
+        el.classList.remove('hidden')
+        clearTimeout(el._t)
+        el._t = setTimeout(() => el.classList.add('hidden'), 3000)
+      }
+      function Button({ children, onClick, variant = 'primary', disabled = false }) {
+        const base = 'px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-white/30 disabled:opacity-60 disabled:cursor-not-allowed'
         const variants = {
           primary: 'bg-white/10 hover:bg-white/20 text-white border border-white/20',
           accent: 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 text-white'
         }
-        return React.createElement('button', { onClick, className: base + ' ' + variants[variant] }, children)
+        return React.createElement('button', { onClick, disabled, className: base + ' ' + variants[variant] }, children)
       }
       function Card({ children, className = '' }) {
         return React.createElement('div', { className: 'glass rounded-2xl p-6 ' + className }, children)
       }
       function Navbar({ role, setRole }) {
-        return React.createElement('nav', { className: 'flex items-center justify-between p-4' },
+        return React.createElement('nav', { className: 'sticky top-0 z-40 backdrop-blur bg-black/20 flex items-center justify-between p-4' },
           React.createElement('div', { className: 'flex items-center gap-3' },
             React.createElement('div', { className: 'w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500' }),
             React.createElement('span', { className: 'text-xl font-semibold' }, 'Virtuversity')
@@ -60,12 +79,12 @@
         )
       }
       function Hero() {
-        return React.createElement('section', { className: 'px-6 py-16 text-center' },
+        return React.createElement('section', { className: 'px-6 py-16 text-center max-w-5xl mx-auto' },
           React.createElement('h1', { className: 'text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400' }, 'Micro‑learning for modern students'),
           React.createElement('p', { className: 'mt-4 text-white/80 max-w-2xl mx-auto' }, 'Pay per video, subscribe per course, or follow a teacher. Learn exactly what you need.'),
           React.createElement('div', { className: 'mt-8 flex justify-center gap-4' },
-            React.createElement(Button, { variant: 'accent' }, 'Browse Content'),
-            React.createElement(Button, null, 'Become a Teacher')
+            React.createElement('a', { href: '#pricing' }, React.createElement(Button, { variant: 'accent' }, 'Browse Content')),
+            React.createElement('a', { href: '#auth' }, React.createElement(Button, null, 'Become a Teacher'))
           )
         )
       }
@@ -94,11 +113,14 @@
         const [password, setPassword] = useState('')
         const [role, setRole] = useState('student')
         const submit = async () => {
+          const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+          if (!validEmail) { showToast('Enter a valid email', 'error'); return }
+          if (password.length < 6) { showToast('Password must be 6+ characters', 'error'); return }
           const res = await fetch('/api/auth/' + (mode === 'login' ? 'login' : 'register'), {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email, password, role })
           })
           const data = await res.json()
-          alert(data.message || JSON.stringify(data))
+          if (res.ok) { showToast(data.message || 'Success', 'success') } else { showToast(data.message || 'Error', 'error') }
         }
         return React.createElement(Card, { className: 'max-w-md mx-auto' },
           React.createElement('div', { className: 'flex gap-2 mb-4' },
@@ -106,8 +128,8 @@
             React.createElement(Button, { onClick: () => setMode('register') }, 'Register')
           ),
           React.createElement('div', { className: 'grid gap-3' },
-            React.createElement('input', { className: 'glass rounded-lg px-4 py-2', placeholder: 'Email', value: email, onChange: e => setEmail(e.target.value) }),
-            React.createElement('input', { type: 'password', className: 'glass rounded-lg px-4 py-2', placeholder: 'Password', value: password, onChange: e => setPassword(e.target.value) }),
+            React.createElement('input', { className: 'glass rounded-lg px-4 py-2', placeholder: 'Email', value: email, onChange: e => setEmail(e.target.value), type: 'email', inputMode: 'email' }),
+            React.createElement('input', { type: 'password', className: 'glass rounded-lg px-4 py-2', placeholder: 'Password', value: password, onChange: e => setPassword(e.target.value), minLength: 6 }),
             React.createElement('select', { className: 'glass rounded-lg px-4 py-2', value: role, onChange: e => setRole(e.target.value) },
               React.createElement('option', { value: 'student' }, 'Student'),
               React.createElement('option', { value: 'teacher' }, 'Teacher')
@@ -117,30 +139,47 @@
         )
       }
       function VideoPlayer({ src }) {
+        const [ready, setReady] = useState(false)
+        const [error, setError] = useState(null)
         return React.createElement(Card, null,
-          React.createElement('video', { src, controls: true, className: 'w-full rounded-xl' })
+          React.createElement('div', { className: 'relative' },
+            !ready && !error && React.createElement('div', { className: 'animate-pulse h-48 md:h-64 w-full rounded-xl bg-white/5' }),
+            error && React.createElement('div', { className: 'p-4 text-red-300' }, 'Unable to load video'),
+            React.createElement('video', { src, controls: true, className: 'w-full rounded-xl ' + (ready ? '' : 'absolute top-0 opacity-0'), onLoadedData: () => setReady(true), onError: () => setError(true), controlsList: 'nodownload' })
+          )
         )
-      }
-      async function pay(amount) {
-        const keyRes = await fetch('/api/payments/key')
-        const { key } = await keyRes.json()
-        const orderRes = await fetch('/api/payments/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount }) })
-        const { order } = await orderRes.json()
-        const rzp = new window.Razorpay({ key, order_id: order.id, name: 'Virtuversity', theme: { color: '#7c3aed' } })
-        rzp.open()
       }
       function App() {
         const [role, setRole] = useState('student')
         const [pricing, setPricing] = useState(null)
+        const [paying, setPaying] = useState(false)
+        const pay = async (amount) => {
+          try {
+            setPaying(true)
+            const keyRes = await fetch('/api/payments/key')
+            if (!keyRes.ok) throw new Error('Key fetch failed')
+            const { key } = await keyRes.json()
+            const orderRes = await fetch('/api/payments/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount }) })
+            if (!orderRes.ok) throw new Error('Order creation failed')
+            const { order } = await orderRes.json()
+            const rzp = new window.Razorpay({ key, order_id: order.id, name: 'Virtuversity', theme: { color: '#7c3aed' } })
+            rzp.open()
+            showToast('Opening payment...', 'info')
+          } catch (e) {
+            showToast('Payment unavailable. Try again later.', 'error')
+          } finally {
+            setPaying(false)
+          }
+        }
         return React.createElement('div', null,
           React.createElement(Navbar, { role, setRole }),
           React.createElement(Hero),
-          React.createElement('section', { className: 'px-6 pb-10 max-w-5xl mx-auto' },
+          React.createElement('section', { id: 'pricing', className: 'px-6 pb-10 max-w-5xl mx-auto' },
             React.createElement('h2', { className: 'text-2xl font-semibold mb-4' }, 'Flexible pricing'),
             React.createElement(PricingSelector, { onSelect: setPricing }),
             pricing && React.createElement('div', { className: 'mt-4 flex items-center gap-3' },
               React.createElement('p', { className: 'text-white/80' }, 'Selected: ' + pricing),
-              React.createElement(Button, { variant: 'accent', onClick: () => pay(49900) }, 'Pay ₹499')
+              React.createElement(Button, { variant: 'accent', onClick: () => pay(49900), disabled: paying }, paying ? 'Preparing...' : 'Pay ₹499')
             )
           ),
           React.createElement('section', { id: 'auth', className: 'px-6 pb-16 max-w-5xl mx-auto' },
@@ -150,10 +189,20 @@
           React.createElement('section', { className: 'px-6 pb-24 max-w-5xl mx-auto' },
             React.createElement('h2', { className: 'text-2xl font-semibold mb-4' }, 'Sample video'),
             React.createElement(VideoPlayer, { src: '/api/videos/stream/sample' })
+          ),
+          React.createElement('footer', { className: 'px-6 py-8 text-sm text-white/60 border-t border-white/10' },
+            React.createElement('div', { className: 'max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3' },
+              React.createElement('div', null, '© ', new Date().getFullYear(), ' Virtuversity'),
+              React.createElement('div', { className: 'flex gap-4' },
+                React.createElement('a', { href: '#pricing', className: 'hover:text-white' }, 'Pricing'),
+                React.createElement('a', { href: '#auth', className: 'hover:text-white' }, 'Account'),
+                React.createElement('a', { href: 'mailto:support@virtuversity.in', className: 'hover:text-white' }, 'Support')
+              )
+            )
           )
         )
       }
       ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App))
     </script>
   </body>
-  </html>
+</html>
