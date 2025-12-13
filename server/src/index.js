@@ -11,6 +11,7 @@ import paymentsRouter from './routes/payments.js'
 import emailsRouter from './routes/emails.js'
 import certificatesRouter from './routes/certificates.js'
 import teachersRouter from './routes/teachers.js'
+import coursesRouter from './routes/courses.js'
 
 dotenv.config()
 const app = express()
@@ -47,6 +48,7 @@ app.use('/api/payments', paymentsRouter)
 app.use('/api/emails', emailsRouter)
 app.use('/api/certificates', certificatesRouter)
 app.use('/api/teachers', teachersRouter)
+app.use('/api/courses', coursesRouter)
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../../client/index.html')))
 app.get('/health', (req, res) => res.json({ ok: true }))
