@@ -15,6 +15,24 @@ function read() {
 }
 function write(db) { fs.writeFileSync(dbPath, JSON.stringify(db, null, 2)) }
 
+router.get('/:id/profile', (req, res) => {
+  const { id } = req.params
+  const user = getUserById(id)
+  if (!user || user.role !== 'teacher') return res.status(404).json({ error: 'Teacher not found' })
+  const db = read()
+  const entry = db.users.find(u => u.id === id) || {}
+  res.json({ profile: entry.profile || null })
+})
+
+router.get('/:id/pricing', (req, res) => {
+  const { id } = req.params
+  const user = getUserById(id)
+  if (!user || user.role !== 'teacher') return res.status(404).json({ error: 'Teacher not found' })
+  const db = read()
+  const entry = db.users.find(u => u.id === id) || {}
+  res.json({ pricing: entry.pricing || null })
+})
+
 router.post('/:id/pricing', (req, res) => {
   const { id } = req.params
   const { model, price } = req.body
