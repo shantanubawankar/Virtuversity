@@ -51,15 +51,87 @@
         <a href="/profile" class="px-3 py-2 rounded hover:bg-white/10">Profile</a>
       </nav>
     </header>
-    <main class="max-w-4xl mx-auto p-6">
-      <section class="glass rounded-xl p-6">
-        <h1 class="text-3xl font-bold mb-4">Micro-learning for modern students</h1>
-        <p class="text-white/80 mb-6">Pay per video, subscribe per course, or follow a teacher.</p>
-        <div class="flex gap-3">
-          <a href="/video" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Watch sample</a>
-          <a href="/login" class="px-4 py-2 rounded bg-pink-600 hover:bg-pink-500">Get started</a>
+    <main class="max-w-6xl mx-auto px-6 py-12">
+      <section class="glass rounded-2xl p-8">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-white/70 mb-3">
+              <span class="px-2 py-1 rounded bg-white/10">Micro‑learning</span>
+              <span class="px-2 py-1 rounded bg-white/10">Flexible pricing</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">Learn exactly what you need, when you need it</h1>
+            <p class="text-white/80 text-lg mb-6">Pay per video, unlock course bundles, or subscribe to your favorite teachers. Stream in HD, earn certificates, and track your progress.</p>
+            <div class="flex flex-wrap gap-3">
+              <a href="/courses" class="px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500">Browse courses</a>
+              <a href="/teachers" class="px-5 py-3 rounded-lg bg-pink-600 hover:bg-pink-500">Explore teachers</a>
+              <a href="/video" class="px-5 py-3 rounded-lg bg-white/10 hover:bg-white/20">Watch sample</a>
+            </div>
+          </div>
+          <div class="rounded-xl bg-white/5 border border-white/10 p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="rounded-lg bg-white/10 p-4">
+                <div class="text-sm text-white/70">Per Video</div>
+                <div class="text-2xl font-semibold mt-1">₹199</div>
+                <div class="text-xs text-white/60 mt-1">One‑off purchase</div>
+              </div>
+              <div class="rounded-lg bg-white/10 p-4">
+                <div class="text-sm text-white/70">Course Bundle</div>
+                <div class="text-2xl font-semibold mt-1">₹999</div>
+                <div class="text-xs text-white/60 mt-1">All videos in course</div>
+              </div>
+              <div class="rounded-lg bg-white/10 p-4">
+                <div class="text-sm text-white/70">Teacher Subscription</div>
+                <div class="text-2xl font-semibold mt-1">₹299/mo</div>
+                <div class="text-xs text-white/60 mt-1">All content by teacher</div>
+              </div>
+              <div class="rounded-lg bg-white/10 p-4">
+                <div class="text-sm text-white/70">Certificates</div>
+                <div class="text-2xl font-semibold mt-1">Included</div>
+                <div class="text-xs text-white/60 mt-1">Shareable PDFs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-10 grid md:grid-cols-3 gap-6">
+        <div class="glass rounded-xl p-6">
+          <div class="text-xl font-semibold mb-2">HD streaming</div>
+          <div class="text-white/80">Adaptive delivery with resumable playback for a smooth learning experience.</div>
+        </div>
+        <div class="glass rounded-xl p-6">
+          <div class="text-xl font-semibold mb-2">Verified payments</div>
+          <div class="text-white/80">Secure checkout with Razorpay and instant payment verification.</div>
+        </div>
+        <div class="glass rounded-xl p-6">
+          <div class="text-xl font-semibold mb-2">Progress & certificates</div>
+          <div class="text-white/80">Track progress and generate shareable certificates for completed modules.</div>
+        </div>
+      </section>
+
+      <section class="mt-10 glass rounded-2xl p-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="text-2xl font-semibold">Start learning today</div>
+            <div class="text-white/80">Pick a course or follow a teacher — your journey, your pace.</div>
+          </div>
+          <div class="flex gap-3">
+            <a href="/courses" class="px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500">Browse courses</a>
+            <a href="/login" class="px-5 py-3 rounded-lg bg-white/10 hover:bg-white/20">Create account</a>
+          </div>
         </div>
       </section>
     </main>
+    <footer class="max-w-6xl mx-auto px-6 py-8 text-sm text-white/70">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>© Virtuversity</div>
+        <div class="flex gap-4">
+          <a href="/courses" class="hover:text-white">Courses</a>
+          <a href="/teachers" class="hover:text-white">Teachers</a>
+          <a href="/payments" class="hover:text-white">Pricing</a>
+          <a href="/profile" class="hover:text-white">Account</a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
