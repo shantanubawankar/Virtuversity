@@ -48,20 +48,24 @@ function bindPayments() {
               }
             });
             status.textContent = v.verified ? 'Payment verified' : 'Payment verification failed';
+            window.showToast && window.showToast(v.verified ? 'Payment verified' : 'Payment verification failed', v.verified ? 'success' : 'error');
           } catch (err) {
             status.textContent = err.message;
+            window.showToast && window.showToast(err.message, 'error');
           }
         },
         theme: { color: '#7c3aed' }
       };
       if (typeof window.Razorpay !== 'function') {
         status.textContent = 'Razorpay SDK not loaded';
+        window.showToast && window.showToast('Razorpay SDK not loaded', 'error');
         return;
       }
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
       status.textContent = err.message;
+      window.showToast && window.showToast(err.message, 'error');
     }
   });
 }

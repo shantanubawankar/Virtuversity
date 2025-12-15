@@ -6,6 +6,7 @@
     <title>Teachers • Virtuversity</title>
     <meta name="theme-color" content="#111827" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,9 +19,9 @@
     </style>
   </head>
   <body class="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1f2937] text-white">
-    <header class="flex items-center justify-between px-6 py-4">
+    <header class="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10">
       <div class="text-xl font-semibold">Virtuversity</div>
-      <nav class="flex items-center gap-2 text-sm">
+      <nav class="nav flex items-center gap-2 text-sm">
         <a href="/" class="px-3 py-2 rounded hover:bg-white/10">Home</a>
         <a href="/courses" class="px-3 py-2 rounded hover:bg-white/10">Courses</a>
         <a href="/teachers" class="px-3 py-2 rounded bg-white/10">Teachers</a>
@@ -45,7 +46,12 @@
         root.innerHTML = '';
         data.teachers.forEach(t => {
           const card = document.createElement('div');
-          card.className = 'rounded p-4 bg-white/10';
+          card.className = 'card rounded p-4 bg-white/10';
+          const head = document.createElement('div');
+          head.className = 'flex items-center gap-3';
+          const avatar = document.createElement('div');
+          avatar.className = 'avatar';
+          avatar.textContent = (t.email || 'T').charAt(0).toUpperCase();
           const title = document.createElement('div');
           title.className = 'font-semibold';
           title.textContent = t.email;
@@ -54,9 +60,11 @@
           pricing.textContent = t.pricing ? `${t.pricing.model} • ₹${t.pricing.price}` : 'Pricing: N/A';
           const link = document.createElement('a');
           link.href = '/payments';
-          link.className = 'inline-block mt-3 px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm';
+          link.className = 'btn btn-primary text-sm mt-3';
           link.textContent = 'Subscribe';
-          card.appendChild(title);
+          head.appendChild(avatar);
+          head.appendChild(title);
+          card.appendChild(head);
           card.appendChild(pricing);
           card.appendChild(link);
           root.appendChild(card);
@@ -64,5 +72,6 @@
       }
       loadTeachers();
     </script>
+    <script src="/ui.js"></script>
   </body>
 </html>

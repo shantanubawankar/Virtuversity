@@ -43,18 +43,22 @@ function bindLoginRegister() {
     try {
       const r = await api('/api/auth/register', { method: 'POST', body: { email: regEmail.value, password: regPassword.value, role: regRole.value } });
       regStatus.textContent = 'Registered';
+      window.showToast && window.showToast('Registered', 'success');
       await loadMe();
     } catch (err) {
       regStatus.textContent = err.message;
+      window.showToast && window.showToast(err.message, 'error');
     }
   });
   loginBtn.addEventListener('click', async () => {
     try {
       const r = await api('/api/auth/login', { method: 'POST', body: { email: regEmail.value, password: regPassword.value } });
       regStatus.textContent = 'Logged in';
+      window.showToast && window.showToast('Logged in', 'success');
       await loadMe();
     } catch (err) {
       regStatus.textContent = err.message;
+      window.showToast && window.showToast(err.message, 'error');
     }
   });
   loadMe();

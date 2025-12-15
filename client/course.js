@@ -53,6 +53,7 @@ async function enroll() {
     const me = await api('/api/auth/me').catch(() => null);
     if (!me || !me.user) {
       status.textContent = 'Please login first';
+      window.showToast && window.showToast('Please login first', 'error');
       return;
     }
     const { key } = await api('/api/payments/key');
@@ -81,17 +82,21 @@ async function enroll() {
             await api('/api/emails/receipt', { method: 'POST', body: { to: email, amount: order.amount / 100, currency: order.currency } }).catch(() => {});
             await api('/api/enrollments', { method: 'POST', body: { courseId: id } }).catch(() => {});
             status.textContent = 'Enrollment confirmed. Check your email.';
+            window.showToast && window.showToast('Enrollment confirmed', 'success');
           } else {
             status.textContent = 'Payment verification failed';
+            window.showToast && window.showToast('Payment verification failed', 'error');
           }
         } catch (err) {
           status.textContent = err.message;
+          window.showToast && window.showToast(err.message, 'error');
         }
       },
       theme: { color: '#7c3aed' }
     };
     if (typeof window.Razorpay !== 'function') {
       status.textContent = 'Razorpay SDK not loaded';
+       window.showToast && window.showToast('Razorpay SDK not loaded', 'error');
       return;
     }
     const rzp = new window.Razorpay(options);
