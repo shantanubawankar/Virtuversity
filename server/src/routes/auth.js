@@ -2,7 +2,7 @@ import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { addUser, getUserByEmail, getUserById } from '../data/store.js'
-import { signToken } from '../middleware/auth.js'
+import { signToken, verifyToken } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
   const token = signToken({ id: user.id, role: user.role })
   const isProd = process.env.NODE_ENV === 'production'
   res.cookie('token', token, { httpOnly: true, sameSite: isProd ? 'none' : 'lax', secure: isProd, path: '/' })
-  res.json({ message: 'Registered', user: { id: user.id, email, role: user.role } })
+  res.json({ message: 'Registered', user: { id: user.id, email, role: user.role }, token })
 })
 
 router.post('/login', async (req, res) => {
@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
   const token = signToken({ id: user.id, role: user.role })
   const isProd = process.env.NODE_ENV === 'production'
   res.cookie('token', token, { httpOnly: true, sameSite: isProd ? 'none' : 'lax', secure: isProd, path: '/' })
-  res.json({ message: 'Logged in', user: { id: user.id, email: user.email, role: user.role } })
+  res.json({ message: 'Logged in', user: { id: user.id, email: user.email, role: user.role }, token })
 })
 
 router.post('/logout', (req, res) => {
@@ -38,10 +38,11 @@ router.post('/logout', (req, res) => {
 })
 
 router.get('/me', (req, res) => {
-  const token = req.cookies['token']
-  if (!token) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
+    const bearer = (req.headers['authorization'] || '').split(' ')[1]
+    const token = req.cookies['token'] || bearer
+    if (!token) return res.status(401).json({ error: 'Unauthorized' })
+    const payload = verifyToken(token)
     const user = getUserById(payload.id)
     if (!user) return res.status(404).json({ error: 'Not found' })
     res.json({ user: { id: user.id, email: user.email, role: user.role } })

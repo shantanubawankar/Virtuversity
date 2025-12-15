@@ -1,7 +1,7 @@
-async function api(path, { method = 'GET', body } = {}) {
+async function api(path, { method = 'GET', body, headers } = {}) {
   const opts = {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: Object.assign({}, body ? { 'Content-Type': 'application/json' } : {}, headers || (localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})),
     credentials: 'include',
     body: body ? JSON.stringify(body) : undefined
   }

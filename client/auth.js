@@ -40,9 +40,13 @@ function bindLoginRegister() {
   const regStatus = document.getElementById('regStatus');
   const loginBtn = document.getElementById('loginBtn');
   const meBox = document.getElementById('meBox');
+  function authHeader() {
+    const t = localStorage.getItem('token')
+    return t ? { Authorization: `Bearer ${t}` } : undefined
+  }
   async function loadMe() {
     try {
-      const r = await api('/api/auth/me');
+      const r = await api('/api/auth/me', { headers: authHeader() });
       meBox.textContent = `ID: ${r.user.id} • ${r.user.email} • ${r.user.role}`;
     } catch {
       meBox.textContent = 'Not logged in';
@@ -54,6 +58,7 @@ function bindLoginRegister() {
       const r = await api('/api/auth/register', { method: 'POST', body: { email: regEmail.value, password: regPassword.value, role: regRole.value } });
       regStatus.textContent = 'Registered';
       window.showToast && window.showToast('Registered', 'success');
+      if (r.token) localStorage.setItem('token', r.token);
       await loadMe();
     } catch (err) {
       regStatus.textContent = err.message;
@@ -65,6 +70,7 @@ function bindLoginRegister() {
       const r = await api('/api/auth/login', { method: 'POST', body: { email: regEmail.value, password: regPassword.value } });
       regStatus.textContent = 'Logged in';
       window.showToast && window.showToast('Logged in', 'success');
+      if (r.token) localStorage.setItem('token', r.token);
       await loadMe();
     } catch (err) {
       regStatus.textContent = err.message;
