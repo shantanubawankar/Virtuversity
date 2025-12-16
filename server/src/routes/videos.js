@@ -13,7 +13,12 @@ seedSampleVideo()
 router.get('/stream/:id', (req, res) => {
   const id = req.params.id
   const file = path.join(__dirname, `../../videos/${id}.mp4`)
-  if (!fs.existsSync(file)) return res.status(404).end()
+  if (!fs.existsSync(file)) {
+    if (id === 'sample') {
+      return res.redirect(302, 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4')
+    }
+    return res.status(404).end()
+  }
   const stat = fs.statSync(file)
   const range = req.headers.range
   if (!range) {
