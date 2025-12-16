@@ -17,8 +17,16 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:8080'
-app.use(cors({ origin: clientOrigin, credentials: true }))
+const defaultOrigins = ['http://localhost:8080', 'https://virtuversity.vercel.app']
+const extraOrigins = (process.env.CLIENT_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean)
+const allowlist = [...defaultOrigins, ...extraOrigins]
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true)
+    cb(null, allowlist.includes(origin))
+  },
+  credentials: true
+}))
 app.set('trust proxy', 1)
 app.use((req, res, next) => {
   const host = req.headers.host || ''

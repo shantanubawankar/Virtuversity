@@ -178,6 +178,90 @@
           `)
           return
         }
+        if (path === '/login') {
+          render(page, `
+            <section class="glass rounded-2xl p-8">
+              <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                  <div class="text-2xl font-semibold mb-4">Login</div>
+                  <form id="login-form" class="space-y-3">
+                    <input id="login-email" type="email" placeholder="Email" class="w-full px-3 py-2 rounded bg-white/10 border border-white/20" required />
+                    <input id="login-password" type="password" placeholder="Password" class="w-full px-3 py-2 rounded bg-white/10 border border-white/20" required />
+                    <button class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Login</button>
+                  </form>
+                  <div id="login-msg" class="mt-3 text-sm text-white/80"></div>
+                  <button id="logout-btn" class="mt-4 px-4 py-2 rounded bg-white/10 hover:bg-white/20">Logout</button>
+                </div>
+                <div>
+                  <div class="text-2xl font-semibold mb-4">Register</div>
+                  <form id="register-form" class="space-y-3">
+                    <input id="reg-email" type="email" placeholder="Email" class="w-full px-3 py-2 rounded bg-white/10 border border-white/20" required />
+                    <input id="reg-password" type="password" placeholder="Password" class="w-full px-3 py-2 rounded bg-white/10 border border-white/20" required />
+                    <select id="reg-role" class="w-full px-3 py-2 rounded bg-white/10 border border-white/20">
+                      <option value="student">Student</option>
+                      <option value="teacher">Teacher</option>
+                    </select>
+                    <button class="px-4 py-2 rounded bg-pink-600 hover:bg-pink-500">Register</button>
+                  </form>
+                  <div id="register-msg" class="mt-3 text-sm text-white/80"></div>
+                </div>
+              </div>
+            </section>
+          `)
+          const loginForm = document.getElementById('login-form')
+          const loginMsg = document.getElementById('login-msg')
+          loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            loginMsg.textContent = 'Logging in...'
+            try {
+              const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: document.getElementById('login-email').value,
+                  password: document.getElementById('login-password').value
+                })
+              })
+              const data = await res.json()
+              if (!res.ok) { loginMsg.textContent = data.error || 'Login failed'; return }
+              loginMsg.textContent = 'Logged in'
+              location.hash = '#/dashboard'
+            } catch { loginMsg.textContent = 'Network error' }
+          })
+          const logoutBtn = document.getElementById('logout-btn')
+          logoutBtn.addEventListener('click', async () => {
+            loginMsg.textContent = 'Logging out...'
+            try {
+              const res = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+              if (!res.ok) { loginMsg.textContent = 'Logout failed'; return }
+              loginMsg.textContent = 'Logged out'
+            } catch { loginMsg.textContent = 'Network error' }
+          })
+          const regForm = document.getElementById('register-form')
+          const regMsg = document.getElementById('register-msg')
+          regForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            regMsg.textContent = 'Registering...'
+            try {
+              const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: document.getElementById('reg-email').value,
+                  password: document.getElementById('reg-password').value,
+                  role: document.getElementById('reg-role').value
+                })
+              })
+              const data = await res.json()
+              if (!res.ok) { regMsg.textContent = data.error || 'Registration failed'; return }
+              regMsg.textContent = 'Registered'
+              location.hash = '#/dashboard'
+            } catch { regMsg.textContent = 'Network error' }
+          })
+          return
+        }
         if (path === '/profile') {
           const user = await getUser()
           const role = user?.role || 'guest'
@@ -193,6 +277,71 @@
                 </div>
                 <div class="px-4 py-2 rounded bg-white/10">${title}</div>
               </div>
+            </section>
+          `)
+          return
+        }
+        if (path === '/courses') {
+          render(page, `
+            <section class="glass rounded-2xl p-8">
+              <div class="text-2xl font-semibold mb-4">Courses</div>
+              <div class="grid md:grid-cols-3 gap-4">
+                <div class="rounded-lg bg-white/10 p-4">Intro to Python</div>
+                <div class="rounded-lg bg-white/10 p-4">Web Dev Basics</div>
+                <div class="rounded-lg bg-white/10 p-4">Data Structures</div>
+              </div>
+            </section>
+          `)
+          return
+        }
+        if (path === '/teachers') {
+          render(page, `
+            <section class="glass rounded-2xl p-8">
+              <div class="text-2xl font-semibold mb-4">Teachers</div>
+              <div class="grid md:grid-cols-3 gap-4">
+                <div class="rounded-lg bg-white/10 p-4">Anita Sharma</div>
+                <div class="rounded-lg bg-white/10 p-4">Rahul Verma</div>
+                <div class="rounded-lg bg-white/10 p-4">Meera Iyer</div>
+              </div>
+            </section>
+          `)
+          return
+        }
+        if (path === '/payments') {
+          render(page, `
+            <section class="glass rounded-2xl p-8">
+              <div class="text-2xl font-semibold mb-4">Payments</div>
+              <div id="key" class="text-white/80">Loading key...</div>
+            </section>
+          `)
+          try {
+            const res = await fetch('/api/payments/key', { credentials: 'include' })
+            const data = await res.json()
+            document.getElementById('key').textContent = 'Public key: ' + (data.key || 'not set')
+          } catch {
+            document.getElementById('key').textContent = 'Could not load key'
+          }
+          return
+        }
+        if (path === '/video') {
+          render(page, `
+            <section class="glass rounded-2xl p-8">
+              <div class="text-2xl font-semibold mb-4">Sample Video</div>
+              <video controls class="w-full rounded-lg bg-black">
+                <source src="/api/videos/stream/sample" type="video/mp4">
+              </video>
+              <div class="text-white/70 text-sm mt-2">If the video does not play, the server may not host the sample file.</div>
+            </section>
+          `)
+          return
+        }
+        if (path === '/my-courses') {
+          const user = await getUser()
+          const role = user?.role || 'guest'
+          render(page, `
+            <section class="glass rounded-2xl p-8">
+              <div class="text-2xl font-semibold mb-4">My Courses</div>
+              <div class="text-white/80">${role === 'guest' ? 'Sign in to view your courses' : 'No courses yet'}</div>
             </section>
           `)
           return
